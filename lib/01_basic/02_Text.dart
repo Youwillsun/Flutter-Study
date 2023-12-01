@@ -42,17 +42,17 @@ class TextDemo extends StatelessWidget {
           textScaler: TextScaler.linear(1.5),
         ),
         RichText(
-            text: const TextSpan(
+            text: TextSpan(
                 text: "Hello",
-                style: TextStyle(fontSize: 40, color: Colors.red),
+                style: const TextStyle(fontSize: 40, color: Color.fromRGBO(255, 0, 0, 1)),
                 children: [
                   TextSpan(
                     text: "Flutter",
-                    style: TextStyle(fontSize: 40, color: Colors.blue),
+                    style: TextStyle(fontSize: 40, color: Colors.blue[200]),
                   ),
-                  TextSpan(
+                  const TextSpan(
                     text: "你好世界",
-                    style: TextStyle(fontSize: 30, color: Colors.black45),
+                    style: TextStyle(fontSize: 30, color: Color.fromARGB(0xff, 0x00, 0xff, 0x00)),
                   )
                 ]
             )
