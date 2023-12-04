@@ -25,14 +25,14 @@ class CardDemo extends StatelessWidget {
     return Column(
       children: [
         Card(
-          margin: EdgeInsets.all(30),
+          margin: const EdgeInsets.all(30),
           color: Colors.purpleAccent[100],
           shadowColor: Colors.yellow,
           elevation: 20,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(40),
-              side: BorderSide(color: Colors.yellow, width: 3)),
-          child: Column(
+              side: const BorderSide(color: Colors.yellow, width: 3)),
+          child: const Column(
             children: [
               ListTile(
                 leading: Icon(Icons.supervised_user_circle, size: 50),
@@ -61,7 +61,7 @@ class CardDemo extends StatelessWidget {
             ],
           ),
         ),
-        Card(
+        const Card(
           margin: EdgeInsets.all(30),
           child: Column(
             children: [

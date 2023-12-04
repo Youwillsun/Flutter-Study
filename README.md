@@ -690,3 +690,1035 @@ class CardDemo extends StatelessWidget {
 }
 ```
 
+### Button（按钮）
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: const ButtonDemo(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){},
+        tooltip: "Increment",
+        child: Icon(Icons.add),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+    );
+  }
+}
+
+class ButtonDemo extends StatelessWidget {
+  const ButtonDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Wrap(
+        children: [
+          TextButton(
+              onPressed: () {
+                print('点击 TextButton');
+              },
+              onLongPress: () {
+                print('长按 TextButton');
+              },
+              child: const Text('TextButton')),
+          ElevatedButton(
+              onPressed: () {
+                print('点击 ElevatedButton');
+              },
+              onLongPress: () {
+                print('长按 ElevatedButton');
+              },
+              child: const Text('ElevatedButton')),
+          OutlinedButton(
+              onPressed: () {
+                print('点击 OutlinedButton');
+              },
+              onLongPress: () {
+                print('长按 OutlinedButton');
+              },
+              child: const Text('OutlinedButton')),
+          OutlinedButton(
+              onPressed: () {
+                print('点击 OutlinedButton');
+              },
+              onLongPress: () {
+                print('长按 OutlinedButton');
+              },
+              style: ButtonStyle(
+                  textStyle:
+                      MaterialStateProperty.all(const TextStyle(fontSize: 30)),
+                  foregroundColor: MaterialStateProperty.resolveWith((states) {
+                    // 按下按钮时的前景色
+                    if (states.contains(MaterialState.pressed)) {
+                      return Colors.red;
+                    }
+                    return Colors.blue;
+                  }),
+                  backgroundColor: MaterialStateProperty.resolveWith((states) {
+                    // 按下按钮时的前景色
+                    if (states.contains(MaterialState.pressed)) {
+                      return Colors.yellow;
+                    }
+                    return Colors.white;
+                  }),
+                  shadowColor: MaterialStateProperty.all(Colors.yellow),
+                  elevation: MaterialStateProperty.all(20),
+                  // 边框
+                  side: MaterialStateProperty.all(
+                      const BorderSide(color: Colors.green, width: 2)),
+                  // 按钮形状
+                  shape: MaterialStateProperty.all(const StadiumBorder(
+                      side: BorderSide(color: Colors.green, width: 2))),
+                  // 按钮大小
+                  maximumSize: MaterialStateProperty.all(const Size(180, 90)),
+                  // 水波纹效果
+                  overlayColor: MaterialStateProperty.all(Colors.purple)),
+              child: const Text('轮廓按钮')),
+          OutlinedButtonTheme(
+            data: OutlinedButtonThemeData(
+                style: ButtonStyle(
+                    overlayColor: MaterialStateProperty.all(Colors.red))),
+            child: OutlinedButton(
+              onPressed: () {
+                print('点击 OutlinedButton');
+              },
+              onLongPress: () {
+                print('长按 OutlinedButton');
+              },
+              style: ButtonStyle(
+                  // 样式中声明的样式如果和主题中重复，则主题中的不生效
+                  overlayColor: MaterialStateProperty.all(Colors.red)),
+              child: const Text('OutlinedButton'),
+            ),
+          ),
+          // 图标按钮
+          IconButton(
+              onPressed: () {
+                print('IconButton');
+              },
+              color: Colors.red,
+              splashColor: Colors.lightBlue,
+              highlightColor: Colors.purple,
+              tooltip: "怎么了", // 长按会出现
+              icon: Icon(Icons.add_alarm)),
+          TextButton.icon(
+              onPressed: () {
+                print('文本按钮 icon');
+              },
+              icon: Icon(Icons.add_circle),
+              label: Text("文本按钮")),
+          ElevatedButton.icon(
+              onPressed: () {
+                print('凸起按钮 icon');
+              },
+              icon: Icon(Icons.add_circle),
+              label: Text("凸起按钮")),
+          OutlinedButton.icon(
+              onPressed: () {
+                print('轮廓按钮 icon');
+              },
+              icon: Icon(Icons.add_circle),
+              label: Text("轮廓按钮")),
+          // 按钮组
+          Container(
+            color: Colors.pink,
+            width: double.infinity,
+            // 按钮默认横向排列，当按钮显示不下时，会垂直排列
+            child: ButtonBar(
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      print("按钮一");
+                    },
+                    child: Text("按钮一")),
+                ElevatedButton(
+                    onPressed: () {
+                      print("按钮一");
+                    },
+                    child: Text("按钮一")),
+                ElevatedButton(
+                    onPressed: () {
+                      print("按钮一");
+                    },
+                    child: Text("按钮一")),
+              ],
+            ),
+          ),
+          BackButton(
+            color: Colors.red,
+            onPressed: () {
+              print("回退按钮");
+            },
+          ),
+          CloseButton(
+            color: Colors.red,
+            onPressed: () {
+              print("关闭按钮");
+            },
+          )
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Image（图片）
+
+Image.asset 加载本地图片
+
+- 项目下创建一个图片存储目录
+- 在 pubspec.yaml 中的 flutter 部分添加图片配置
+- 在代码中加载图片
+
+Image.network 加载网络图片
+
+- 设置网络访问权限
+- 允许http协议访问（默认只允许https）
+
+```dart
+class ImageDemo extends StatelessWidget {
+  const ImageDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Image.asset(
+          'images/bg1.jpg',
+          width: 200,
+          height: 200,
+          fit: BoxFit.cover,
+        ),
+        Image.network(
+          'https://himg.bdimg.com/sys/portrait/item/public.1.f02d5419.4lnYMc1vGvDDmM9ZRgs5JQ.jpg',
+          repeat: ImageRepeat.repeat,
+          color: Colors.green,
+          colorBlendMode: BlendMode.colorDodge,
+        )
+      ],
+    );
+  }
+}
+```
+
+### SingleChildScrollView（列表）
+
+child 子组件
+
+padding 内边距
+
+scrollDirection 滚动方向：Axis.horizontal | Axis.vertical
+
+reverse 初始滚动位置，false 头部 | true 尾部
+
+physics：
+
+- ClampingScrollPhysics：Android 下微光效果
+- BouncingScrollPhysics：IOS下弹性效果
+
+```dart
+class SingleChildScrollViewDemo extends StatelessWidget {
+  const SingleChildScrollViewDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // 验证水平滚动
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.all(10),
+          reverse: true,
+          child: Row(
+            children: [
+              OutlinedButton(onPressed: () {}, child: Text("按钮一")),
+              OutlinedButton(onPressed: () {}, child: Text("按钮二")),
+              OutlinedButton(onPressed: () {}, child: Text("按钮三")),
+              OutlinedButton(onPressed: () {}, child: Text("按钮四")),
+              OutlinedButton(onPressed: () {}, child: Text("按钮五")),
+              OutlinedButton(onPressed: () {}, child: Text("按钮六")),
+            ],
+          ),
+        ),
+        // 垂直方向
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          padding: EdgeInsets.all(10),
+          reverse: false,
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            children: List.generate(100, (index) => OutlinedButton(onPressed: () {}, child: Text("按钮$index")))
+          ),
+        )
+      ],
+    );
+  }
+}
+```
+
+### ListView（列表）
+
+ListView
+
+- 加载列表组件（加载所有Widgets，使用Widgets比较少的场景）
+- ListTitle（leading，title，subtitle，trailing，selected）
+
+ListView.builder
+
+- 按需加载Widget，性能比默认构造函数要高，使用Widget较多的场景
+
+ListView.separated
+
+- 比 ListVIew.builder 多了分隔器
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: const ListViewDemo(),
+    );
+  }
+}
+
+class ListViewDemo extends StatelessWidget {
+  const ListViewDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const ListViewBasic(),
+          const ListViewHorizontal(),
+          ListViewBuilderDemo(),
+          ListViewSeperatedDemo()
+        ],
+      ),
+    );
+  }
+}
+
+class ListViewBasic extends StatelessWidget {
+  const ListViewBasic({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 200,
+      child: ListView(
+        scrollDirection: Axis.vertical,
+        children: const [
+          ListTile(
+            leading: Icon(
+              Icons.access_alarm,
+              size: 50,
+            ),
+            title: Text("access_alarm"),
+            subtitle: Text("子标题"),
+            trailing: Icon(Icons.keyboard_arrow_right),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.add_a_photo_outlined,
+              size: 50,
+            ),
+            title: Text("add_a_photo_outlined"),
+            subtitle: Text("子标题"),
+            trailing: Icon(Icons.keyboard_arrow_right),
+            selected: true,
+            selectedColor: Colors.red,
+            selectedTileColor: Colors.lightBlue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.ac_unit,
+              size: 50,
+            ),
+            title: Text("ac_unit"),
+            subtitle: Text("子标题"),
+            trailing: Icon(Icons.keyboard_arrow_right),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.fact_check_outlined,
+              size: 50,
+            ),
+            title: Text("fact_check_outlined"),
+            subtitle: Text("子标题"),
+            trailing: Icon(Icons.keyboard_arrow_right),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ListViewHorizontal extends StatelessWidget {
+  const ListViewHorizontal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 100,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          Container(
+            width: 160,
+            color: Colors.amber,
+          ),
+          Container(
+            width: 160,
+            color: Colors.black,
+          ),
+          Container(
+            width: 160,
+            color: Colors.blue,
+          ),
+          Container(
+            width: 160,
+            color: Colors.grey,
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ListViewBuilderDemo extends StatelessWidget {
+  ListViewBuilderDemo({super.key});
+
+  final List<Widget> users = List<Widget>.generate(20,
+      (index) => OutlinedButton(onPressed: () {}, child: Text("姓名 $index")));
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 100,
+      child: ListView.builder(
+        itemCount: users.length,
+        itemExtent: 30,
+        padding: const EdgeInsets.all(10),
+        itemBuilder: (context, index) {
+          return users[index];
+        },
+      ),
+    );
+  }
+}
+
+class ListViewSeperatedDemo extends StatelessWidget {
+  ListViewSeperatedDemo({super.key});
+
+  final List<Widget> products = List.generate(
+      20,
+      (index) => ListTile(
+            leading: Image.asset('images/flutter.jpg'),
+            title: Text("商品标题 $index"),
+            subtitle: const Text("子标题"),
+            trailing: const Icon(Icons.keyboard_arrow_right),
+          ));
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const ListTile(
+          title: Text("商品列表"),
+        ),
+        Container(
+          height: 200,
+          child: ListView.separated(
+              itemBuilder: (context, index) {
+                return products[index];
+              },
+              // 分隔器的构造器
+              separatorBuilder: (context, index) {
+                return Divider(
+                  color: index % 2 == 0 ? Colors.blue : Colors.red,
+                  thickness: 2,
+                );
+              },
+              itemCount: products.length),
+        )
+      ],
+    );
+  }
+}
+```
+
+### GridView（列表）
+
+GirView
+
+- children 子组件
+
+- scrollDirection 滚动方向
+
+- gridDelegate
+  - SliverGridDelegateWidthFixedCrossAxisCount 指定列数 - 子组件宽度自适应
+  - SliverGridDelegateWidthMaxCorssAxisExtent 指定子组件宽度 - 列数自适应
+
+```dart
+class GridViewDemo extends StatelessWidget {
+  const GridViewDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: 
+      // GridView(
+      //   padding: const EdgeInsets.all(20),
+      //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      //     crossAxisCount: 2,
+      //     mainAxisSpacing: 20, // 主轴方向的边距
+      //     crossAxisSpacing: 20, // 交叉轴边距
+      //     childAspectRatio: 1.5 // 子组件宽高比例
+      //   ),
+      //   children: [
+      //     Container(color: Colors.black),
+      //     Container(color: Colors.orange),
+      //     Container(color: Colors.blue),
+      //     Container(color: Colors.red),
+      //     Container(color: Colors.green),
+      //     Container(color: Colors.grey),
+      //     Container(color: Colors.purple),
+      //     Container(color: Colors.yellow),
+      //     Container(color: Colors.brown),
+      //     Container(color: Colors.teal),
+      //   ],
+      // ),
+      GridView(
+        padding: const EdgeInsets.all(20),
+        // ignore: prefer_const_constructors
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 190, // 子组件宽度
+          mainAxisSpacing: 20, // 主轴方向的边距
+          crossAxisSpacing: 20, // 交叉轴边距
+          childAspectRatio: 0.8
+        ),
+        children: [
+          Container(color: Colors.black),
+          Container(color: Colors.orange),
+          Container(color: Colors.blue),
+          Container(color: Colors.red),
+          Container(color: Colors.green),
+          Container(color: Colors.grey),
+          Container(color: Colors.purple),
+          Container(color: Colors.yellow),
+          Container(color: Colors.brown),
+          Container(color: Colors.teal),
+        ],
+      ),
+    );
+  }
+}
+```
+
+**GridView命名构造函数用法：**
+
+GridView.count 列数固定
+
+GridView.extend 子组件宽度固定
+
+GridView.builder 动态网格布局
+
+- ScrollPhysics physics 确定可滚动控件的物理特性
+  - BouncingScrollPhysics 允许超出边界 - 反弹效果
+  - ClampingScrollPhysics 防止超出边界 - 夹住效果
+  - AlwaysScrollableScrollPhysics 始终响应滚动
+  - NeverScrollableScrollPhysics 不响应滚动
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      // body: const GridViewCountDemo(),
+      // body: const GridViewExtendDemo(),
+      body: GridViewBuilderDemo(),
+    );
+  }
+}
+
+class GridViewCountDemo extends StatelessWidget {
+  const GridViewCountDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: GridView.count(
+        crossAxisCount: 2, // 几列
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 20,
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        childAspectRatio: 1.5,
+        children:
+            List.generate(10, (index) => Image.asset('images/flutter.jpg')),
+      ),
+    );
+  }
+}
+
+class GridViewExtendDemo extends StatelessWidget {
+  const GridViewExtendDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: GridView.extent(
+        maxCrossAxisExtent: 100, // 子组件宽度
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 20,
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        children:
+            List.generate(10, (index) => Image.asset('images/flutter.jpg')),
+      ),
+    );
+  }
+}
+
+class GridViewBuilderDemo extends StatelessWidget {
+  GridViewBuilderDemo({super.key});
+
+  final List<dynamic> _tiles = [
+    Container(color: Colors.black),
+    Container(color: Colors.orange),
+    Container(color: Colors.blue),
+    Container(color: Colors.red),
+    Container(color: Colors.green),
+    Container(color: Colors.grey),
+    Container(color: Colors.purple),
+    Container(color: Colors.yellow),
+    Container(color: Colors.brown),
+    Container(color: Colors.teal),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 20,
+            childAspectRatio: 1.0),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        itemCount: _tiles.length,
+        itemBuilder: (context, index) {
+          return _tiles[index];
+        },
+        physics: BouncingScrollPhysics(), // 反弹效果
+        // physics: ClampingScrollPhysics(), // 夹住效果
+        // physics: AlwaysScrollableScrollPhysics(), // 滚动
+        // physics: NeverScrollableScrollPhysics(), // 禁止滚动
+      ),
+    );
+  }
+}
+```
+
+### 其他
+
+#### Cupertino（IOS风格）
+
+- IOS风格组件
+- import "package:flutter/cupertion.dart"
+
+```dart
+class MyBody extends StatelessWidget {
+  const MyBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // final Widget dialogBox;
+    // // 判断当前的平台信息
+    // if (Platform.isIOS) {
+    //   // 加载IOS风格
+    //   dialogBox = CupertinoDemo();
+    // } else if (Platform.isAndroid) {
+    //   // 加载android风格
+    //   dialogBox = MaterialDemo();
+    // }
+
+    return Container(
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          // 安卓风格组件
+          Text('material 安卓风格'),
+          MaterialDemo(),
+          // IOS风格组件
+          Text('Cupertino IOS风格'),
+          CupertinoDemo()
+        ],
+      ),
+    );
+  }
+}
+
+class MaterialDemo extends StatelessWidget {
+  const MaterialDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: AlertDialog(
+        title: const Text("提示"),
+        content: const Text("确认删除吗？"),
+        actions: [
+          TextButton(
+              onPressed: () {
+                print("取消的逻辑");
+              },
+              child: const Text("取消")),
+          TextButton(
+              onPressed: () {
+                print("确认的逻辑");
+              },
+              child: const Text("确认"))
+        ],
+      ),
+    );
+  }
+}
+
+class CupertinoDemo extends StatelessWidget {
+  const CupertinoDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: CupertinoAlertDialog(
+        title: const Text("提示"),
+        content: const Text("确认删除吗？"),
+        actions: [
+          CupertinoDialogAction(
+              onPressed: () {
+                print("取消的逻辑");
+              },
+              child: const Text("取消")),
+          CupertinoDialogAction(
+              onPressed: () {
+                print("确认的逻辑");
+              },
+              child: const Text("确认"))
+        ],
+      ),
+    );
+  }
+}
+```
+
+## 第三方组件
+
+1. 去[pub.dev](https://pub.dev/)种搜索
+2. 在 pubspec.yaml 种配置
+
+### dio（Http请求）
+
+*相当于flutter版的axios*
+
+```dart
+class DioDemo extends StatelessWidget {
+  const DioDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ElevatedButton(
+        child: Text("点击发送请求"),
+        onPressed: () {
+          getIpAddress();
+        },
+      ),
+    );
+  }
+
+  void getIpAddress() async {
+    try {
+      const url = 'https://httpbin.org/ip';
+      Response response = await Dio().get(url);
+      String ip = response.data['origin'];
+      print(ip);
+    } catch (e) {
+      print(e);
+    }
+  }
+}
+```
+
+
+
+### flutter_swiper（轮播）
+
+*flutter中的轮播组件*
+
+*flutter_swiper不支持 sdk3.x，可以使用 flutter_swiper_view*
+
+```dart
+class FlutterSwiperViewDemo extends StatelessWidget {
+  FlutterSwiperViewDemo({super.key});
+
+  final List<String> imgs = ['images/01.jpg', 'images/02.jpg', 'images/03.jpg'];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        Container(
+          height: 200,
+          child: Swiper(
+            itemCount: imgs.length,
+            itemBuilder: (context, index) {
+              return Image.asset(imgs[index], fit: BoxFit.cover,);
+            },
+            pagination: const SwiperPagination(), // 轮播图指示器
+            control: const SwiperControl(), // 轮播图导航
+          ),
+        ),
+        Container(
+          height: 200,
+          child: Swiper(
+            itemCount: imgs.length,
+            itemBuilder: (context, index) {
+              return Image.asset(imgs[index], fit: BoxFit.cover,);
+            },
+            viewportFraction: 0.7,
+            scale: 0.7,
+          ),
+        ),
+        Container(
+          height: 200,
+          child: Swiper(
+            itemCount: imgs.length,
+            itemBuilder: (context, index) {
+              return Image.asset(imgs[index], fit: BoxFit.cover,);
+            },
+            itemWidth: 300,
+            layout: SwiperLayout.STACK,
+          ),
+        ),
+        Container(
+          height: 200,
+          child: Swiper(
+            itemCount: imgs.length,
+            itemBuilder: (context, index) {
+              return Image.asset(imgs[index], fit: BoxFit.cover,);
+            },
+            itemWidth: 300,
+            itemHeight: 200,
+            layout: SwiperLayout.TINDER, // 使用TINDER效果，不仅要指定宽度，高度也要指定
+          ),
+        )
+      ],
+    );
+  }
+}
+```
+
+### shared_preferences（本地存储）
+
+*相当于web端的localStorage*
+
+使用：SharedPreference perfs = await SharedPreference.getInstance();
+
+基本操作,以String类型举例，其他类型基本一致，比如setString | setBool | setInt
+
+- 增 setString(key, value)
+- 删
+  - remove(key)
+  - clear() 清空
+- 改
+  - 更改就是重新设置数据，所以使用 setString(key, value) 即可
+- 查 getString(key)
+
+```dart
+class ShartPerferencesDemo extends StatelessWidget {
+  const ShartPerferencesDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ElevatedButton(onPressed: _incrementCounter, child: const Text('递增')),
+          ElevatedButton(onPressed: _decrementCounter, child: const Text('递减')),
+          ElevatedButton(onPressed: _removeCounter, child: const Text('删除')),
+          ElevatedButton(onPressed: _addMyContent, child: const Text('设置字符串')),
+          ElevatedButton(onPressed: _getMyContent, child: const Text('获取字符串')),
+          ElevatedButton(onPressed: _clearContent, child: const Text('清空')),
+        ],
+      ),
+    );
+  }
+
+  _incrementCounter() async {
+    // 获取SharedPreferences实例
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int counter = (prefs.getInt('counter') ?? 0) + 1;
+    print('Pressd Counter is $counter');
+    await prefs.setInt('counter', counter);
+  }
+
+  _decrementCounter() async {
+    // 获取SharedPreferences实例
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int counter = prefs.getInt('counter') ?? 0;
+    if (counter > 0) {
+      counter--;
+    }
+    print('Pressd Counter is $counter');
+    await prefs.setInt('counter', counter);
+  }
+
+  _removeCounter() async {
+    // 获取SharedPreferences实例
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('counter');
+    int counter = prefs.getInt('counter') ?? 0;
+    print('Pressd Counter is $counter');
+  }
+
+  _addMyContent() async {
+    // 获取SharedPreferences实例
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('hi', 'hello world');
+    String content = prefs.getString('hi') ?? '';
+    print('set string content is $content');
+  }
+
+  _getMyContent() async {
+    // 获取SharedPreferences实例
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String content = prefs.getString('hi') ?? '';
+    print('get string content is $content');
+  }
+
+  _clearContent() async {
+    // 获取SharedPreferences实例
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+}
+```
+
+## 状态管理
+
+Flutter中的组件，按状态划分：
+
+- StatelessWidget 无状态组件
+- StatefulWidget 状态组件
+
+按状态作用域划分
+
+- 组件内私有状态 （statefulWidget）
+- 跨组件状态共享（InheritedWidget，Provider）
+- 全局状态（Redux | fish-redux(咸鱼团队退出)，Mobx）
+
+状态组件的组成
+
+- StatefulWidget （组件本身不可变 - @immutable）
+- State（将变化的状态放到State中维护）
+
+### StatefulWidget（状态组件）
+
+```dart
+class MyState extends StatefulWidget {
+  const MyState({super.key});
+
+  @override
+  State<MyState> createState() => _MyStateState();
+}
+
+class _MyStateState extends State<MyState> {
+  int _num = 0;
+  void _increment() {
+    setState(() {
+      _num++;
+    });
+  }
+
+  void _decrement() {
+    setState(() {
+      _num--;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(children: [
+        ElevatedButton(onPressed: _increment, child: Icon(Icons.add)),
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: Text('$_num'),
+        ),
+        ElevatedButton(onPressed: _decrement, child: Icon(Icons.remove))
+      ]),
+    );
+  }
+}
+```
+
+### DataTable（表格）
+
+*这个表格中用到了状态管理，所以放到这里来*
+
+
+
+### InheritedWidget
+
+*这个组件可以实现跨组件分享功能*
+
+
+
+### 生命周期
+
+
+
+### Provider
+
+
+
