@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import './11_other/CustomLocalizations.dart';
+
 // import './01_basic/01_Hello.dart';
 // import './01_basic/02_Text.dart';
 // import './02_layout/01_Container.dart';
@@ -30,7 +33,18 @@ import 'package:flutter/material.dart';
 // import './09_navigation/06_bottomNavigatorBar.dart';
 // import './09_navigation/07_tab.dart';
 // import './10_form/01_Switch.dart';
-import './10_form/02_Checkbox.dart';
+// import './10_form/02_Checkbox.dart';
+// import './10_form/03_Radio.dart';
+// import './10_form/04_TextField.dart';
+// import './10_form/05_Calendart.dart';
+// import '10_form/06_Form.dart';
+// import './10_form/07_Form.dart';
+// import './11_other/01_Animation.dart';
+// import './11_other/02_StaggerAnimation.dart';
+// import './11_other/03_HeroAnimation.dart';
+// import './11_other/04_TextI18n.dart';
+import './11_other/05_Theme.dart';
+import './11_other/CustomTheme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,11 +56,59 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: "Flutter Demo",
       home: Home(),
-      // theme: ThemeData(fontFamily: 'SourceSans3'),
+      // theme: ThemeData(
+      //   elevatedButtonTheme: ElevatedButtonThemeData(
+      //     style: ButtonStyle(
+      //       backgroundColor: MaterialStateProperty.all(Colors.red),
+      //     ),
+      //   ),
+      //   textTheme: TextTheme(
+      //     titleMedium: TextStyle(
+      //       fontSize: 20,
+      //     ),
+      //   ),
+      //   iconTheme: IconThemeData(color: Colors.green, size: 40),
+      //   cardTheme: CardTheme(
+      //     color: Colors.red,
+      //     shape: RoundedRectangleBorder(
+      //       borderRadius: BorderRadius.circular(10),
+      //       side: const BorderSide(color: Colors.yellow, width: 3),
+      //     ),
+      //     elevation: 20
+      //   ),
+      // ),
+      // 适配终端主题风格(使用flutter内置)
+      // theme: ThemeData.light(),
+      // darkTheme: ThemeData.dark(),
+      // 使用自定主题适配
+      theme: CustomTheme.lightTheme,
+      darkTheme: CustomTheme.darkTheme,
       debugShowCheckedModeBanner: false,
+      // 国际化
+      localizationsDelegates: {
+        // 自定义本地化代理
+        CustomLocalizations.delegate,
+        // 本地化的代理
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      },
+      supportedLocales: [Locale('en', 'US'), Locale('zh', 'CN')],
+      localeResolutionCallback: (locale, supportedLocales) {
+        print('deiveLocale ${locale}');
+        print('languageCode ${locale!.languageCode}');
+        print('countryCode ${locale!.countryCode}');
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale!.languageCode &&
+              supportedLocale.countryCode == locale!.countryCode) {
+            return supportedLocale;
+          }
+        }
+        return supportedLocales.first;
+      },
     );
   }
 }

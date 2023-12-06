@@ -2992,20 +2992,1223 @@ class _CheckboxDemoState extends State<CheckboxDemo> {
 
 ### Radio
 
-Radio
+Radio 单选
 
-- value 复选框的值，与状态字段绑定
-- onChanged 复选框状态更改时调用
+- value 单选的值，与状态字段绑定
+- onChanged 单选状态更改时调用
+- groupValue 选择组的值
+
+RadioListTile 单选列表
+
+- value 单选的值，与状态字段绑定
+- onChanged 单选状态更改时调用
+- groupValue 选择组的值
+
+```dart
+class RadioDemo extends StatefulWidget {
+  const RadioDemo({super.key});
+
+  @override
+  State<RadioDemo> createState() => _RadioDemoState();
+}
+
+class _RadioDemoState extends State<RadioDemo> {
+  int gender = 1;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('男'),
+              Radio(
+                value: 1,
+                groupValue: gender,
+                onChanged: (value) {
+                  setState(() {
+                    gender = value!;
+                  });
+                },
+              ),
+              Text('女'),
+              Radio(
+                value: 2,
+                groupValue: gender,
+                onChanged: (value) {
+                  setState(() {
+                    gender = value!;
+                  });
+                },
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [Text(gender == 1 ? '男' : '女')],
+          ),
+          RadioListTile(
+            title: Text('男性'),
+            subtitle: Text('有胡子'),
+            secondary: Icon(Icons.person),
+            value: 1,
+            groupValue: gender,
+            onChanged: (value) {
+              setState(() {
+                gender = value!;
+              });
+            },
+            selected: gender == 1,
+            selectedTileColor: Colors.green[100],
+          ),
+          RadioListTile(
+            title: Text('女性'),
+            subtitle: Text('没有胡子'),
+            secondary: Icon(Icons.person),
+            value: 2,
+            groupValue: gender,
+            onChanged: (value) {
+              setState(() {
+                gender = value!;
+              });
+            },
+            selected: gender == 2,
+            selectedTileColor: Colors.green[100],
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
 
 ### TextField
 
+autofocus 是否获取焦点
 
+keyboardType 键盘类型
 
+obscureText 设置为密码框
 
+decoration 样式修饰
+
+onChanged 内容更改时自动调用 - value
+
+labelText 标题
+
+hintText 提示文字 - placeholder
+
+maxLines 显示行数 - 当显示行数大于1时，显示成文本域，否则为普通文本框
+
+```dart
+class TextFieldDemo extends StatefulWidget {
+  const TextFieldDemo({super.key});
+
+  @override
+  State<TextFieldDemo> createState() => _TextFieldDemoState();
+}
+
+class _TextFieldDemoState extends State<TextFieldDemo> {
+  String? phone;
+  String? password;
+  String? description;
+
+  _register() {
+    print(phone);
+    print(password);
+    print(description);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          TextField(
+            autofocus: true,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.phone_outlined),
+              labelText: "手机号",
+              hintText: "请输入手机号",
+              hintStyle: TextStyle(color: Colors.green, fontSize: 12),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.green),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.yellow),
+              ),
+            ),
+            maxLength: 11,
+            onChanged: (value) {
+              setState(() {
+                phone = value;
+              });
+            },
+          ),
+          TextField(
+            keyboardType: TextInputType.text,
+            obscureText: true,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.code_outlined),
+              labelText: "密码",
+              hintText: "请输入密码",
+            ),
+            onChanged: (value) {
+              setState(() {
+                password = value;
+              });
+            },
+          ),
+          TextField(
+            maxLines: 5,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.person),
+              labelText: "简介",
+              hintText: "介绍一下自己",
+            ),
+            onChanged: (value) {
+              setState(() {
+                description = value;
+              });
+            },
+          ),
+          // 声明按钮
+          Container(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                _register();
+              },
+              child: Text('提交'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
 
 ### Calendar
 
+CalendarDatePicker
 
+- initialCalendarMode 默认日期模式
+  - DatePickerMode.day 以天为单位来展示
+  - DatePickerMode.year 以年为单位来展示
+- showDatePicker 日期选择器
+  - initialDatePickerMode（year| day）
+  - initialEntryMode（calendar | input）
+- showTimePicker 时间选择器
+
+```dart
+class CalendarDemo extends StatefulWidget {
+  const CalendarDemo({super.key});
+
+  @override
+  State<CalendarDemo> createState() => _CalendarDemoState();
+}
+
+class _CalendarDemoState extends State<CalendarDemo> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListView(
+        padding: EdgeInsets.all(15),
+        children: [
+          _showDatePicker(context)
+        ],
+      ),
+    );
+  }
+}
+
+ElevatedButton _showDatePicker(context) {
+  return ElevatedButton(
+      onPressed: () {
+        showDatePicker(
+            context: context,
+            initialDatePickerMode: DatePickerMode.day, // 天数
+            initialDate: DateTime.now(), // 初始化选中日期
+            firstDate: DateTime(2020, 6), // 开始日期
+            lastDate: DateTime(2025, 6), // 结束日期
+            initialEntryMode: DatePickerEntryMode.calendar, // 日期弹窗样式
+
+            currentDate: DateTime.now(), // 当前日期
+            helpText: "日期选择器",
+            cancelText: "取消",
+            confirmText: "确认",
+            errorFormatText: "errorFormatText", //格式错误提示
+            errorInvalidText: "errorInvalidText", // 输入日期不在 firstDate和lastDate之间
+            fieldLabelText: "fieldLabelText", // 输入框上方提示
+            fieldHintText: "fieldHintText", // 输入框为空时内部提示
+            useRootNavigator: true, // 是否为根导航器
+
+            // 设置不可选日期
+            selectableDayPredicate: (dayTime) {
+              if (dayTime == DateTime(2021, 1, 15)) {
+                return false;
+              }
+              return true;
+            });
+      },
+      child: Text('showDatePicker'));
+}
+```
 
 ### Form
 
+使用步骤
+
+- 创建表单Form，并以GlobalKey作为唯一性标识
+- 添加带验证逻辑的TextFormField到Form中
+- 创建按钮以验证和提交表单
+
+Form 表单容器
+
+- 创建表单唯一键：final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+- 验证表单：_formKey.currentState.validate();
+- 提交表单：_formKey.currentState.save();
+- 重置表单：_formKey.currentState.reset();
+
+TextFormField 输入框
+
+- 与TextField的区别：必须在Form内使用 且 带有验证器
+- validator 验证器
+- obscureText 密码框
+- onSaved 回调函数（设置表单字段的值，在表单的save()方法之后执行）
+
+```dart
+class FormDemo extends StatefulWidget {
+  const FormDemo({super.key});
+
+  @override
+  State<FormDemo> createState() => _FormDemoState();
+}
+
+class _FormDemoState extends State<FormDemo> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String? _phone;
+  String? _password;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(children: [
+        Form(
+          key: _formKey,
+          child: Column(children: [
+            TextFormField(
+              decoration: InputDecoration(hintText: "手机号"),
+              validator: (value) {
+                RegExp reg = new RegExp(r'^\d{11}$');
+                if (!reg.hasMatch(value!)) {
+                  return '手机号非法$value';
+                }
+                return null;
+              },
+              onSaved: (value) {
+                print('_phone onSaved');
+                _phone = value;
+              },
+            ),
+            TextFormField(
+              obscureText: true,
+              decoration: InputDecoration(hintText: "密码"),
+              validator: (value) {
+                return value!.length < 6 ? '密码长度不够' : null;
+              },
+              onSaved: (value) {
+                print('_password onSaved');
+                _password = value;
+              },
+            ),
+          ]),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    print('提交成功');
+                    // 提交表单
+                    print('_formKey.currentState!.save() before');
+                    _formKey.currentState!.save();
+                    print('_formKey.currentState!.save() after');
+                    print(_phone);
+                    print(_password);
+                  }
+                },
+                child: Text('提交'),
+              ),
+            ),
+            SizedBox(width: 20),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  _formKey.currentState!.reset();
+                },
+                child: Text('重置'),
+              ),
+            ),
+          ],
+        ),
+      ]),
+    );
+  }
+}
+```
+
+## 	其他
+
+### 动画
+
+#### 创建动画
+
+> 补间（Tween）动画
+>
+> - 定义开始点，结束点，时间线以及转换时间和速度曲线。
+>
+> 拟物动画
+>
+> - 模拟真实世界行为。（弹簧，阻尼）
+
+Animation是Flutter动画库中的一个核心类，包含动画的值和状态两个属性，定义了动画的一系列监听函数。
+
+监听值：
+
+- addListener
+- removeListener
+
+监听状态：
+
+- addStatusListener
+- removeStatusListener
+
+动画状态：
+
+1. AnimationStatus.dismissed 动画初始状态
+2. AnimationStatus.completed 动画结束状态
+3. AnimationStatus.forward 动画处在开始到结束的运行状态
+4. AnimationStatus.reverse 动画处在结束到开始的运行状态
+
+AnimationController 动画控制器，在指定时间，将组件初始值演变到终止值
+
+AnimationController参数：
+
+- duration 执行时间
+- reverseDuration 反向执行时间
+- lowerBound = 0.0 动画最小值
+- upperBound = 1.0 动画最大值
+- value 动画初始值，默认是lowerBound
+- vsync（TickerProvider类型的对象，用来创建Ticker对象）
+  - vsync 作用是防止屏幕外动画（动画页面切换到后台时）消耗不必要的资源
+  - 通过将 SingleTickerProviderStateMixin 添加到类定义中，可以将 Stateful 对象作为 vsync  的值
+
+AnimationController方法：
+
+- .forward 正向执行动画
+- .reverse 反向执行动画
+- .dispose 用来释放动画资源
+- .stop 停止动画运行
+
+Tween 补间动画:
+
+- AnimationController动画生成值的默认区间时0.0到1.0，如果希望使用不同的区间，或者不同的数据类型，需要使用Tween。
+- Tween的唯一职责就是定义从输入范围到输出范围的映射。
+
+Tween使用：
+
+- Tween<double>(begin: 起始值, end: 终止值);
+- ColorTween(begin: Colors.white, end: Colors.black);
+
+CurvedAnimation 动画曲线：
+
+- CurvedAnimation(parent: controller, curve: Curve.easeIn)
+  - parent 动画控制器对象
+  - curve 正向执行的动画曲线
+  - reverse 反向执行的动画曲线
+
+
+
+```dart
+class AnimationDemo extends StatefulWidget {
+  const AnimationDemo({super.key});
+
+  @override
+  State<AnimationDemo> createState() => _AnimationDemoState();
+}
+
+class _AnimationDemoState extends State<AnimationDemo>
+    with SingleTickerProviderStateMixin {
+  AnimationController? controller;
+  Animation? animation;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // 1. 创建AnimationController
+    controller = AnimationController(
+      duration: Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    // 2. 声明动画曲线
+    animation = CurvedAnimation(parent: controller!, curve: Curves.bounceIn);
+
+    // 2.1 设置动画值的范围
+    animation = Tween(begin: 50.0, end: 400.0).animate(controller!);
+
+    // 3. 监听动画
+    animation!.addListener(() {
+      print(animation!.value);
+      setState(() {});
+    });
+
+    // 4. 执行动画
+    // controller!.forward();
+  }
+
+  animateStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      controller!.reverse();
+    } else if (status == AnimationStatus.dismissed) {
+      controller!.forward();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              controller!.forward();
+            },
+            child: Text('放大'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller!.reverse();
+            },
+            child: Text('缩小'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              animation!.addStatusListener(animateStatus);
+              controller!.forward();
+            },
+            child: Text('重复'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller!.stop();
+              animation!.removeStatusListener(animateStatus);
+            },
+            child: Text('停止'),
+          ),
+          Icon(
+            Icons.favorite,
+            color: Colors.red,
+            size: animation!.value,
+          ),
+          Opacity(
+            opacity: controller!.value,
+            child: Text('Hello World'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controller!.dispose();
+  }
+}
+```
+
+#### 交织动画
+
+由多个单一动画叠加而成的复杂动画。
+
+Transform 对组件进行矩阵变换
+
+- 平移 Transfrom.translate
+- 旋转 Transform.rotate
+- 缩放 Transform.scale
+
+```dart
+class StaggerAnimationDemo extends StatefulWidget {
+  const StaggerAnimationDemo({super.key});
+
+  @override
+  State<StaggerAnimationDemo> createState() => _StaggerAnimationDemoState();
+}
+
+class _StaggerAnimationDemoState extends State<StaggerAnimationDemo>
+    with SingleTickerProviderStateMixin {
+  AnimationController? controller;
+  Animation<double>? animation;
+  Animation? sizeAnimation;
+  Animation? colorAnimation;
+  Animation? roateAnimation;
+
+  animateStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      controller!.reverse();
+    } else if (status == AnimationStatus.dismissed) {
+      controller!.forward();
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // 创建AnimationController
+    controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 3));
+    // 创建动画
+    animation = CurvedAnimation(parent: controller!, curve: Interval(0.0, 0.5))
+      ..addListener(() {
+        setState(() {});
+      });
+
+    // 让动画反复运行
+    animation!.addStatusListener(animateStatus);
+    // 其他动画
+    sizeAnimation = Tween(begin: 0.0, end: 200.0).animate(animation!);
+    colorAnimation = ColorTween(begin: Colors.yellow, end: Colors.red).animate(
+      CurvedAnimation(
+        parent: controller!,
+        curve: Interval(0.5, 0.8, curve: Curves.bounceIn),
+      ),
+    )..addListener(() {
+        setState(() {});
+      });
+    roateAnimation = Tween(begin: 0.0, end: 2 * pi).animate(
+      CurvedAnimation(
+        parent: controller!,
+        curve: Interval(0.5, 0.8, curve: Curves.easeIn),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              controller!.forward();
+            },
+            child: Text('重复'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller!.stop();
+            },
+            child: Text('停止'),
+          ),
+          Opacity(
+            opacity: controller!.value,
+            child: Transform.rotate(
+              angle: roateAnimation!.value,
+              child: Container(
+                width: sizeAnimation!.value,
+                height: sizeAnimation!.value,
+                color: colorAnimation!.value,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    controller!.dispose();
+  }
+}
+```
+
+#### Hero 动画
+
+Hero 动画用来实现跨页面的动画效果
+
+- 在不同页面中声明一个共享组件 hero
+- 由于共享组件在不同页面中的不同位置，外观等不同，路由切换时，形成动画效果。
+
+实现：
+
+- 在页面A当中定义起始Hero组件（source hero），声明tag
+- 在页面B当中定义目标Hero组件（destination hero），声明tag
+- 在页面跳转时，通过 Navigator 传递 tag
+
+Hero 组件
+
+- tag 路由切换时，共享组件的标记
+- child 声明子组件
+
+**HeroAnimation.dart**
+
+```dart
+class HeroAnimationDemo extends StatelessWidget {
+  const HeroAnimationDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: GridView.extent(
+        maxCrossAxisExtent: 200,
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 20,
+        padding: EdgeInsets.symmetric(vertical: 20),
+        children: List.generate(20, (index) {
+          String imageUrl = "https://picsum.photos/id/$index/300/400";
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (BuildContext ctx) {
+                  return ImageDetail(imageUrl);
+                }),
+              );
+            },
+            child: Hero(
+              tag: imageUrl,
+              child: Image.network(imageUrl),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+```
+
+**imageDetail.dart**
+
+```dart
+class ImageDetail extends StatelessWidget {
+  final String imageUrl;
+
+  ImageDetail(this.imageUrl);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Hero(
+            tag: imageUrl,
+            child: Image.network(
+              imageUrl,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 多语言
+
+终端语言切换时，Flutter应用应该跟随切换。
+
+#### 组件国际化：
+
+1. 在pubspec.yaml中引入flutter_localizations
+
+   ```yaml
+   dependencies:
+     flutter_localizations:
+       sdk: flutter
+   ```
+
+2. 设置MaterialApp
+
+   - `import "package:flutter_localizations/flutter_localiztions.dart";`
+
+   - localizationsDelegates 指定哪些组件需要国际化
+
+     ```dart
+     localizationsDelegates: {
+       GlobalMaterialLocalizations.delegate, // Maerial国际化
+       GlobalCupertinoLocalizations.delegate, // Cupertino 国际化
+       GlobalWidgetLocalizations.delegate, // 组件国际化
+     }
+     ```
+
+   - supportedLocales 指定需要支持那些语言
+
+     ```dart
+     supportedLocales:[
+       const Locale('en', 'US'), // 美国英语
+       const Locale('zh', 'CN'), // 中文简体
+       // 其他
+     ]
+     ```
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      title: "Flutter Demo",
+      home: Home(),
+      // theme: ThemeData(fontFamily: 'SourceSans3'),
+      debugShowCheckedModeBanner: false,
+      // 国际化
+      localizationsDelegates: {
+        // 本地化的代理
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      },
+      supportedLocales: [Locale('en', 'US'), Locale('zh', 'CN')],
+    );
+  }
+}
+```
+
+#### 文本国际化
+
+1. 创建本地化类 CustomLocalization
+2. 创建本地化类代理 `CustomLocalizationsDelegate extends LocalizationsDelegate<CustomLocalizations>`
+   - isSupported 当前本地化语言，是否在有效的语言范围内
+   - shouldReload 本地化重新构建时，是否调用load方法，加载本地化资源
+   - load 语言变更时，加载本地对应的资源
+3. 使用本地化类 `CustomLocalization.delegate`
+
+**CustomLocalization.dart**
+
+```dart
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+class CustomLocalizations {
+  final Locale locale;
+
+  CustomLocalizations(this.locale);
+
+  static final Map<String, Map<String, String>> _localizedValues = {
+    "en": {"title": "Home", "greet": "Hello"},
+    "zh": {"title": "首页", "greet": "你好"},
+  };
+
+  String t(String key) {
+    // _localizedValues['zh']['title']
+    return _localizedValues[locale.languageCode]![key] ?? "";
+  }
+
+  static CustomLocalizations of(BuildContext context) {
+    return Localizations.of(context, CustomLocalizations);
+  }
+
+  static CustomLocalizationsDelegate delegate = CustomLocalizationsDelegate();
+}
+
+// 代理类
+class CustomLocalizationsDelegate
+    extends LocalizationsDelegate<CustomLocalizations> {
+  @override
+  bool isSupported(Locale locale) {
+    // TODO: implement isSupported
+    return ["en", "zh"].contains(locale.languageCode);
+  }
+
+  @override
+  Future<CustomLocalizations> load(Locale locale) {
+    print(locale.languageCode);
+    // TODO: implement load
+    return SynchronousFuture(CustomLocalizations(locale));
+  }
+
+  @override
+  bool shouldReload(covariant LocalizationsDelegate<CustomLocalizations> old) {
+    // TODO: implement shouldReload
+    return false;
+  }
+}
+```
+
+**main.dart**
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Flutter Demo",
+      home: Home(),
+      // theme: ThemeData(fontFamily: 'SourceSans3'),
+      debugShowCheckedModeBanner: false,
+      // 国际化
+      localizationsDelegates: {
+        // 自定义本地化代理
+        CustomLocalizations.delegate,
+        // 本地化的代理
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      },
+      supportedLocales: [Locale('en', 'US'), Locale('zh', 'CN')],
+    );
+  }
+}
+```
+
+**TextI18n.dart**
+
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        // 'Hello',
+        // Localizations.of(context, CustomLocalizations).t('greet'),
+        CustomLocalizations.of(context).t('greet'),
+        style: TextStyle(
+          fontSize: 60,
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 加载语言包
+
+检测当前语言
+
+- localResolutionCallback
+  - locale.languageCode 语言代码
+  - locale.countryCode 国家代码
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      ...
+      localeResolutionCallback: (locale, supportedLocales) {
+        print('deiveLocale ${locale}');
+        print('languageCode ${locale!.languageCode}');
+        print('countryCode ${locale!.countryCode}');
+        for (var supportedLocale in supportedLocales) {
+          if(supportedLocale.languageCode == locale!.languageCode && supportedLocale.countryCode == locale!.countryCode) {
+            return supportedLocale;
+          }
+        }
+        return supportedLocales.first;
+      },
+    );
+  }
+}
+```
+
+设置语言包
+
+- 创建语言文件
+- 在pubspec.yaml中配置语言资源
+
+```yaml
+  assets:
+      - lang/en.json
+      - lang/zh.json
+```
+
+异步加载语言包
+
+- 在CustomLocalization中添加loadJSON方法
+- 在CustomLocalizationDelegate中，调用CustomLocalization的loadJSON方法
+
+```dart
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
+
+class CustomLocalizations {
+  final Locale locale;
+
+  Map<String, String>? _localizedValues;
+
+  CustomLocalizations(this.locale);
+
+  Future<bool> loadJSON() async {
+    String jsonString = await rootBundle.loadString('lang/${locale.languageCode}.json');
+    Map<String, dynamic> jsonMap = json.decode(jsonString);
+    _localizedValues =
+        jsonMap.map((key, value) => MapEntry(key, value.toString()));
+
+    return true;
+  }
+
+  String t(String key) {
+    // _localizedValues['title']
+    return _localizedValues![key] ?? key;
+  }
+
+  static CustomLocalizations of(BuildContext context) {
+    return Localizations.of(context, CustomLocalizations);
+  }
+
+  static CustomLocalizationsDelegate delegate = CustomLocalizationsDelegate();
+}
+
+class CustomLocalizationsDelegate
+    extends LocalizationsDelegate<CustomLocalizations> {
+  @override
+  bool isSupported(Locale locale) {
+    // TODO: implement isSupported
+    return ["en", "zh"].contains(locale.languageCode);
+  }
+
+  @override
+  Future<CustomLocalizations> load(Locale locale) async {
+    print(locale.languageCode);
+    // TODO: implement load
+    CustomLocalizations localizations = CustomLocalizations(locale);
+    await localizations.loadJSON();
+    return localizations;
+  }
+
+  @override
+  bool shouldReload(covariant LocalizationsDelegate<CustomLocalizations> old) {
+    // TODO: implement shouldReload
+    return false;
+  }
+}
+```
+
+### 多主题
+
+#### 设置主题
+
+ThemeData
+
+- Brightness（Brightness.light | Brightness.dark）
+- primaryColor | accentColor
+- buttonTheme | cardTheme | iconTheme | textTheme
+
+Theme 声明局部主题
+
+- Theme.of(context) 获取上下文中的主题信息
+
+**main.dart**
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Flutter Demo",
+      home: Home(),
+      theme: ThemeData(
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.red),
+          ),
+        ),
+        textTheme: TextTheme(
+          titleMedium: TextStyle(
+            fontSize: 20,
+          ),
+        ),
+        iconTheme: IconThemeData(color: Colors.green, size: 40),
+        cardTheme: CardTheme(
+          color: Colors.red,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(color: Colors.yellow, width: 3),
+          ),
+          elevation: 20
+        ),
+      ),
+    );
+  }
+}
+```
+
+**theme.dart**
+
+```dart
+class ThemeDemo extends StatelessWidget {
+  const ThemeDemo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text(
+            'Theme Example',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text('按钮'),
+          ),
+          // 对主题有反应的按钮
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text('OutlinedButton'),
+          ),
+          const Icon(Icons.person),
+          const Icon(Icons.abc),
+          // 声明局部主题样式
+          Theme(
+            data: ThemeData(
+              iconTheme: IconThemeData(color: Colors.pink, size: 100),
+            ),
+            child: Icon(Icons.access_alarm),
+          ),
+          const Card(
+            margin: EdgeInsets.all(30),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.supervised_user_circle, size: 50),
+                  title: Text(
+                    "张三",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                  subtitle: Text(
+                    "董事长",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text(
+                    "电话: 13333333333",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+                ListTile(
+                  title: Text(
+                    "地址:xxxxxxxx",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### 主题适配(跟随系统)
+
+声明不同的主题 customTheme
+
+使用自定义主题
+
+- import 'CustomTheme.dart';
+- theme: CustomTheme.lightTheme
+- darkTheme: CustomTheme.darkTheme,
+
+使用flutter内置主题
+
+- theme: ThemeData.light();
+- theme: ThemeData.dark();
+
+**CustomTheme.dart**
+
+```dart
+import 'package:flutter/material.dart';
+
+class CustomTheme {
+  // 公共样式
+  static const double _CardBorderWidth = 3;
+  static const double _CardElevation = 20;
+
+  // 高亮主题
+  static final ThemeData lightTheme = ThemeData(
+    cardTheme: CardTheme(
+      color: Colors.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: Colors.yellow, width: _CardBorderWidth),
+      ),
+      elevation: _CardElevation,
+    ),
+  );
+
+  // 黑暗主题
+  static final ThemeData darkTheme = ThemeData(
+    cardTheme: CardTheme(
+      color: Colors.grey[100],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: Colors.red, width: _CardBorderWidth),
+      ),
+      elevation: _CardElevation,
+    ),
+  );
+}
+```
+
+**main.dart**
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Flutter Demo",
+      home: Home(),
+      // 适配终端主题风格(使用flutter内置)
+      // theme: ThemeData.light(),
+      // darkTheme: ThemeData.dark(),
+      // 使用自定主题适配
+      theme: CustomTheme.lightTheme,
+      darkTheme: CustomTheme.darkTheme,
+    );
+  }
+}
+```
+
+
+
+end
