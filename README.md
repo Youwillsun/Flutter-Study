@@ -1706,19 +1706,1306 @@ class _MyStateState extends State<MyState> {
 
 *这个表格中用到了状态管理，所以放到这里来*
 
+DataTable是Flutter种的表格：
 
+- columns 声明表头列表
+  - DataColumn 表头单元格
+- rows 声明数据列表
+  - DataRow 一行数据
+    - DataCell 数据单元格
+- 其他属性
+
+```dart
+class User {
+  String name;
+  int age;
+  bool selected;
+  User(this.name, this.age, {this.selected = false});
+}
+
+class UserList extends StatefulWidget {
+  const UserList({super.key});
+
+  @override
+  State<UserList> createState() => _UserListState();
+}
+
+class _UserListState extends State<UserList> {
+  List<User> data = [
+    User('张三', 18),
+    User('张三丰', 218, selected: true),
+    User('张翠山', 30),
+    User('张无忌', 60),
+  ];
+
+  bool _sortAscending = true;
+
+  List<DataRow> _getUserRows() {
+    List<DataRow> dataRows = [];
+
+    for (int i = 0; i < data.length; i++) {
+      dataRows.add(DataRow(
+          selected: data[i].selected,
+          onSelectChanged: (selected) {
+            setState(() {
+              data[i].selected = selected!;
+            });
+          },
+          cells: [
+            DataCell(Text(data[i].name)),
+            DataCell(Text(data[i].age.toString())),
+            const DataCell(Text('男')),
+            const DataCell(Text('---')),
+          ]));
+    }
+
+    return dataRows;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            sortColumnIndex: 1,
+            sortAscending: _sortAscending,
+            horizontalMargin: 20,
+            columnSpacing: 80,
+            columns: [
+              const DataColumn(label: Text('姓名')),
+              DataColumn(
+                  label: const Text('年龄'),
+                  numeric: true,
+                  onSort: (int columnIndex, bool asscending) {
+                    setState(() {
+                      _sortAscending = asscending;
+                      if (asscending) {
+                        data.sort((a, b) => a.age.compareTo(b.age));
+                      } else {
+                        data.sort((a, b) => b.age.compareTo(a.age));
+                      }
+                    });
+                  }),
+              const DataColumn(label: Text('性别')),
+              const DataColumn(label: Text('简介'))
+            ],
+            rows: _getUserRows(),
+          )),
+    );
+  }
+}
+```
 
 ### InheritedWidget
 
 *这个组件可以实现跨组件分享功能*
 
+What：提供了沿树向下，共享数据的功能。
 
+- 即子组件可以获取父组件（InheritedWidget的子类）的数据
+
+Why：依赖构造函数传递数据的方式不能满足业务需求，所以需要一个新的，更好的跨组件数据传输方案
+
+How：`BuildContext.dependOnInheritedWidgetOfExactType<MyInheritedWidget>()`
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: const MyState(),
+    );
+  }
+}
+
+class MyState extends StatefulWidget {
+  const MyState({super.key});
+
+  @override
+  State<MyState> createState() => _MyStateState();
+}
+
+class _MyStateState extends State<MyState> {
+  int _num = 0;
+  void _increment() {
+    setState(() {
+      _num++;
+    });
+  }
+
+  void _decrement() {
+    setState(() {
+      _num--;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ShareDataWidget(
+        num: _num,
+        child: Center(
+          child: Column(children: [
+            ElevatedButton(onPressed: _increment, child: const Icon(Icons.add)),
+            const Padding(
+              padding: EdgeInsets.all(10),
+              // child: Text('$_num'),
+              // 跨组件访问s数据
+              child: MyCounter(),
+            ),
+            ElevatedButton(onPressed: _decrement, child: const Icon(Icons.remove))
+          ]),
+        ));
+  }
+}
+
+class MyCounter extends StatefulWidget {
+  const MyCounter({super.key});
+
+  @override
+  State<MyCounter> createState() => _MyCounterState();
+}
+
+class _MyCounterState extends State<MyCounter> {
+  @override
+  Widget build(BuildContext context) {
+    return Text(ShareDataWidget.of(context)!.num.toString());
+  }
+}
+
+// 数据共享组件
+class ShareDataWidget extends InheritedWidget {
+  final Widget child;
+  final int num;
+
+  const ShareDataWidget({super.key, required this.child, required this.num})
+      : super(child: child);
+
+  static ShareDataWidget? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ShareDataWidget>();
+  }
+
+  @override
+  bool updateShouldNotify(ShareDataWidget oldWidget) {
+    return true;
+  }
+}
+```
 
 ### 生命周期
 
+initState 组件对象插入到元素树种时
 
+didChangeDependencies 当前状态对象的依赖改变时
+
+build 组件渲染时
+
+setState 组件对象的内部状态变更时
+
+didUpdateWidget 组件配置更新时
+
+deactivate 组件对象在元素树种**暂时**移除时
+
+dispose 组件对象在元素树中**永远**移除时
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    print('build');
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: const MyState(),
+    );
+  }
+}
+
+class MyState extends StatefulWidget {
+  const MyState({super.key});
+
+  @override
+  State<MyState> createState() => _MyStateState();
+}
+
+class _MyStateState extends State<MyState> {
+  int _num = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _num = 1;
+    print('initState');
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    print('didChangeDependencies');
+  }
+
+  @override
+  void didUpdateWidget(covariant MyState oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    print('didUpdateWidget');
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+    print(deactivate);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print('dispose');
+  }
+
+  void _increment() {
+    setState(() {
+      print('setState');
+      _num++;
+    });
+  }
+
+  void _decrement() {
+    setState(() {
+      print('setState');
+      _num--;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(children: [
+        ElevatedButton(onPressed: _increment, child: Icon(Icons.add)),
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: Text('$_num'),
+        ),
+        ElevatedButton(onPressed: _decrement, child: Icon(Icons.remove))
+      ]),
+    );
+  }
+}
+```
 
 ### Provider
 
+*Provider*是对InheritedWidget的封装是一个第三方的库
 
+Provider优点：
+
+1. 简化资源的分配与处置
+2. 懒加载
+
+Provider使用：
+
+- 创建数据模型（T extends ChangeProvider）
+- 创建Provider（注册数据模型）
+  - Provider() 不会被要求随着变动而变动
+  - ChangeNotifierProvider() 随着某些数据改变而被通知更新
+- 获取数据模型并更新UI
+  - 通过上下文（`BuildContext`）
+  - 通过静态方法（`Provider.of<T>(context)`）
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // 注册数据模型
+    return ChangeNotifierProvider(
+        create: (BuildContext context) => new LikesModel(),
+        child: Scaffold(
+          appBar: AppBar(
+              title: const Text("首页"),
+              leading: const Icon(Icons.menu),
+              actions: const [Icon(Icons.settings)],
+              elevation: 1,
+              centerTitle: true),
+          body: const MyHomepage(),
+        ));
+  }
+}
+
+// 创建数据模型
+class LikesModel extends ChangeNotifier {
+  int _counter = 0;
+
+  int get counter => _counter;
+
+  incrementCounter() {
+    _counter++;
+
+    // 通知UI更新
+    notifyListeners();
+  }
+}
+
+class MyHomepage extends StatelessWidget {
+  const MyHomepage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          // 子组件中使用数据模型
+          Text('${context.watch<LikesModel>().counter}'),
+          TextButton(
+              // 子组件中使用数据模型
+              onPressed: Provider.of<LikesModel>(context).incrementCounter,
+              child: Icon(Icons.thumb_up))
+        ],
+      ),
+    );
+  }
+}
+```
+
+## 路由与导航
+
+Route
+
+- 一个路由是一个屏幕或页面的抽象
+
+Navigator
+
+- 管理路由的组件。Navigator 可以通过路由入栈和出栈来实现页面之间的跳转
+- 常用属性：
+  - initalRoute: 初始路由，即默认页面
+  - onGenerateRoute: 动态路由（根据规则匹配）
+  - onUnknownRoute: 未知路由（404）
+  - routes: 路由集合
+
+### 匿名路由
+
+Navigator
+
+- push 跳转到指定组件
+
+  ```dart
+  Navigator.push(
+  	context,
+    MaterialPageRoute(builder: (context) => 组件名称())
+  )
+  ```
+
+- pop 回退
+
+  Navigator.pop(context)
+
+```dart
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            // 匿名路由直接使用组件名称跳转
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Product()));
+          },
+          child: Text("跳转到商品页面"),
+        ),
+      ),
+    );
+  }
+}
+
+class Product extends StatelessWidget {
+  const Product({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("商品页面"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('返回'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 命名路由
+
+声明路由
+
+- routes 路由表（Map类型）
+- initial 初始路由
+- onUnknownRoute 未知路由404
+
+跳转到命名路由
+
+- Navigator.pushNamed(context, "路由名称");
+
+**main.dart**
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Flutter Demo",
+      // home: Home(),
+      // 声明路由
+      routes: {'home': (context) => Home(), 'product': (context) => Product()},
+      initialRoute: 'home',
+      onUnknownRoute: (RouteSettings setting) =>
+          MaterialPageRoute(builder: (context) => UnknowPage()),
+      // theme: ThemeData(fontFamily: 'SourceSans3'),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+```
+
+**namedRoute.dart**
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, 'product');
+                },
+                child: Text('跳转')),
+            ElevatedButton(
+                onPressed: () {
+                  // 该路由不存在，所以会触发404路由页面
+                  Navigator.pushNamed(context, 'user');
+                },
+                child: Text('未知商品'))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Product extends StatelessWidget {
+  const Product({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("商品页面"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('返回'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class UnknowPage extends StatelessWidget {
+  const UnknowPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("404"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('返回'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 动态路由
+
+动态路由是指通过 onGenerateRoute 属性指定的路由
+
+**main.dart**
+
+```dart
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Flutter Demo",
+      // 动态路由
+      onGenerateRoute: (RouteSettings setting) {
+        // 匹配首页
+        print('当前路径' + setting.name.toString());
+        if (setting.name == '/') {
+          return MaterialPageRoute(builder: (context) => Home());
+        }
+        if (setting.name == '/product') {
+          return MaterialPageRoute(builder: (context) => Product());
+        }
+
+        // 匹配 /product/:id
+        var uri = Uri.parse(setting.name.toString());
+        print(uri.pathSegments);
+        if (uri.pathSegments.length == 2 &&
+            uri.pathSegments.first == 'product') {
+          var id = uri.pathSegments[1];
+          return MaterialPageRoute(builder: (context) => ProductDetail(id: id));
+        }
+
+        return MaterialPageRoute(builder: (context) => UnknowPage());
+      },
+      // theme: ThemeData(fontFamily: 'SourceSans3'),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+```
+
+**onGenerateRoute.dart**
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/product');
+                },
+                child: Text('跳转')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/product/1');
+                },
+                child: Text('商品1')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/product/2');
+                },
+                child: Text('商品2')),
+            ElevatedButton(
+                onPressed: () {
+                  // 该路由不存在，所以会触发404路由页面
+                  Navigator.pushNamed(context, '/user');
+                },
+                child: Text('未知商品'))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Product extends StatelessWidget {
+  const Product({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("商品页面"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('返回'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProductDetail extends StatelessWidget {
+  final String id;
+  const ProductDetail({super.key, required this.id});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("商品详情页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Container(
+        child: Column(
+          children: [
+            Text('当前商品的id是' + this.id),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('返回'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UnknowPage extends StatelessWidget {
+  const UnknowPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("404"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('返回'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 路由传参
+
+匿名路由传参
+
+- 路由中声明参数
+
+  ```dart
+  Navigator.push(context,
+     MaterialPageRoute(builder: (context){
+       reutrn BlogDetail({
+         id: 100
+       });
+     })
+  );
+  ```
+
+- 组件中接收参数
+
+  ```dart
+  class BlogDetail extends StatefulWidget {
+    final int id;
+    const BlogDetail({super.key, @required this.id});
+  }
+  ```
+
+命名路由传参
+
+- 路由中声明参数
+
+  `Navigator.pushNamed(context, routename, {arguments})`
+
+  ```dart
+  Navigator.pushNamed(
+  	context,
+    "/homePage",
+    arguments: {'title': "命令路由传递过来的title"}
+  );
+  ```
+
+- 组件中接收参数
+
+  `ModalRoute.of(context).settings.arguments`
+
+  ```dart
+  class Homepage extends StatelessWidget {
+    final Map arguments = ModalRoute.of(context).settings.arguments;
+    
+    String title = arguments['title'];
+  }
+  ```
+
+### Drawer 导航
+
+Scaffold
+
+- drawer 左侧抽屉菜单
+- endDrawer 右侧抽屉菜单
+
+UserAccountDarwerHeader 抽屉菜单头部组件
+
+AboutListTitle 关于弹窗
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      body: const HomePage(),
+      drawer: const DrawerList(),
+      endDrawer: const DrawerList(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: const Center(child: Text('home')),
+    );
+  }
+}
+
+class DrawerList extends StatelessWidget {
+  const DrawerList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: const EdgeInsets.all(0),
+        children: [
+          const UserAccountsDrawerHeader(
+            accountName: Text("初六"),
+            accountEmail: Text('124456789@qq.com'),
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('images/bg1.jpg'), fit: BoxFit.cover)),
+            currentAccountPicture:
+                CircleAvatar(backgroundImage: AssetImage("images/flutter.jpg")),
+          ),
+          const ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('设置'),
+            trailing: Icon(Icons.arrow_forward_ios),
+          ),
+          const Divider(thickness: 2),
+          const ListTile(
+            leading: Icon(Icons.account_balance),
+            title: Text('余额'),
+            trailing: Icon(Icons.arrow_forward_ios),
+          ),
+          const Divider(thickness: 2),
+          const ListTile(
+            leading: Icon(Icons.person),
+            title: Text('我的'),
+            trailing: Icon(Icons.arrow_forward_ios),
+          ),
+          const Divider(thickness: 2),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('回退'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            // 点击事件
+            onTap: () => Navigator.pop(context),
+          ),
+          AboutListTile(
+            child: const Text('关于'),
+            applicationName: '你的应用名称',
+            applicationVersion: '1.0.0',
+            icon: const CircleAvatar(child: Text('aaa')),
+            applicationLegalese: "应用法律条款",
+            aboutBoxChildren: [
+              const Text('条例1：xxxx'),
+              const Text('条例2：xxxx'),
+            ],
+            applicationIcon:
+                Image.asset('images/flutter.jpg', width: 50, height: 50),
+          )
+        ],
+      ),
+    );
+  }
+}
+```
+
+### BottomNavigationBar 导航
+
+items 包含导航（BottomNavigationBarItem）的列表
+
+currentIndex 当前导航索引
+
+type 导航类型（BottomNavigationBarType）
+
+onTap() 点击事件
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final List<BottomNavigationBarItem> bottomNavItems = [
+    // backgroundColor要生效，需要设置BottomNavigationBar的type为BottomNavigationBarType.shifting
+    const BottomNavigationBarItem(
+        backgroundColor: Colors.blue, icon: Icon(Icons.home), label: '首页'),
+    const BottomNavigationBarItem(
+        backgroundColor: Colors.green, icon: Icon(Icons.message), label: '消息'),
+    const BottomNavigationBarItem(
+        backgroundColor: Colors.amber,
+        icon: Icon(Icons.shopping_cart),
+        label: '购物车'),
+    const BottomNavigationBarItem(
+        backgroundColor: Colors.red, icon: Icon(Icons.person), label: '我的'),
+  ];
+
+  final List<Center> pages = [
+    const Center(
+      child: Text("Home", style: TextStyle(fontSize: 50)),
+    ),
+    const Center(
+      child: Text("Message", style: TextStyle(fontSize: 50)),
+    ),
+    const Center(
+      child: Text("Cart", style: TextStyle(fontSize: 50)),
+    ),
+    const Center(
+      child: Text("Profile", style: TextStyle(fontSize: 50)),
+    )
+  ];
+
+  late int currentIndex;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    currentIndex = 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("首页"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true),
+      bottomNavigationBar: BottomNavigationBar(
+        items: bottomNavItems,
+        currentIndex: currentIndex,
+        type: BottomNavigationBarType.shifting,
+        onTap: (index) {
+          _changePage(index);
+        },
+      ),
+      body: pages[currentIndex],
+    );
+  }
+
+  void _changePage(int index) {
+    if (index != currentIndex) {
+      setState(() {
+        currentIndex = index;
+      });
+    }
+  }
+}
+```
+
+### Tab 导航
+
+DefaultTabController 整个tab的导航容器
+
+- length 导航数量
+
+- child 子组件
+
+  TabBar 导航菜单
+
+  - tabs 导航菜单数组
+
+  TabBarView
+
+  - children 多个导航页面内容
+
+```dart
+import 'package:flutter/material.dart';
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // 菜单数据
+    final List<Widget> _tabs = [
+      const Tab(
+        text: "首页",
+        icon: Icon(Icons.home),
+      ),
+      const Tab(
+        text: "添加",
+        icon: Icon(Icons.add),
+      ),
+      const Tab(
+        text: "搜索",
+        icon: Icon(Icons.search),
+      ),
+    ];
+
+    // 页面数组
+    final List<Widget> _tabViews = [
+      const Icon(Icons.home, size: 120, color: Colors.red),
+      const Icon(Icons.add, size: 120, color: Colors.green),
+      const Icon(Icons.search, size: 120, color: Colors.black),
+    ];
+
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Tab"),
+          leading: const Icon(Icons.menu),
+          actions: const [Icon(Icons.settings)],
+          elevation: 1,
+          centerTitle: true,
+          bottom: TabBar(
+            tabs: _tabs,
+            labelColor: Colors.amber,
+            unselectedLabelColor: Colors.black,
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorColor: Colors.amber,
+            indicatorWeight: 5,
+          ),
+        ),
+        body: TabBarView(
+          children: _tabViews,
+        ),
+        bottomNavigationBar: TabBar(
+          tabs: _tabs,
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+```
+
+## 表单
+
+### Switch
+
+value 开关的值
+
+onChanged 开关状态变更时触发
+
+activeColor 开关开启时圆圈颜色
+
+activeTrackColor 开关开启时轨道颜色
+
+inactiveThumbColor 开关关闭时圆圈颜色
+
+inactiveTrackColor 开关关闭时轨道颜色
+
+*CupertionSwitch IOS风格开关，使用时需要引入cupertino.dart*
+
+```dart
+class SwitchDemo extends StatefulWidget {
+  const SwitchDemo({super.key});
+
+  @override
+  State<SwitchDemo> createState() => _SwitchDemoState();
+}
+
+class _SwitchDemoState extends State<SwitchDemo> {
+  bool _switchValue = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListView(
+        children: [
+          ListTile(
+            leading: Switch(
+              value: _switchValue,
+              onChanged: (bool val) {
+                setState(() {
+                  _switchValue = val;
+                });
+              },
+              activeColor: Colors.orange,
+              activeTrackColor: Colors.pink,
+              inactiveTrackColor: Colors.grey,
+              inactiveThumbColor: Colors.blue[100],
+            ),
+            title: Text('Android风格 当前的状态是 ${_switchValue == true ? '选中' : '未选中'}'),
+          ),
+          ListTile(
+            leading: CupertinoSwitch(
+              value: _switchValue,
+              onChanged: (bool val) {
+                setState(() {
+                  _switchValue = val;
+                });
+              },
+              activeColor: Colors.red,
+              trackColor: Colors.yellow,
+            ),
+            title: Text('IOS风格 当前的状态是 ${_switchValue == true ? '选中' : '未选中'}'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Checkbox
+
+Checkbox
+
+- value 复选框的值，与状态字段绑定
+- onChanged 复选框状态更改时调用
+- activeColor 选中时复选框背景颜色
+- checkColor 选中时复选框中对号的颜色
+
+CheckboxListTile 可选中的列表
+
+- title 标题
+- subTitle 子标题
+
+```dart
+class CheckboxDemo extends StatefulWidget {
+  const CheckboxDemo({super.key});
+
+  @override
+  State<CheckboxDemo> createState() => _CheckboxDemoState();
+}
+
+class _CheckboxDemoState extends State<CheckboxDemo> {
+  bool _male = true;
+  bool _female = false;
+  bool _transgener = true;
+  bool _value1 = true;
+  bool _value2 = false;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ListTile(
+          leading: Checkbox(
+            value: _male,
+            onChanged: (value) {
+              setState(() {
+                _male = value!;
+              });
+            },
+          ),
+          title: const Text('男'),
+        ),
+        ListTile(
+          leading: Checkbox(
+            value: _female,
+            onChanged: (value) {
+              setState(() {
+                _female = value!;
+              });
+            },
+          ),
+          title: const Text('女'),
+        ),
+        ListTile(
+          leading: Checkbox(
+            value: _transgener,
+            onChanged: (value) {
+              setState(() {
+                _transgener = value!;
+              });
+            },
+            activeColor: Colors.pink,
+            checkColor: Colors.yellow,
+          ),
+          title: const Text('人妖'),
+        ),
+        CheckboxListTile(
+          secondary: const Icon(
+            Icons.settings,
+            size: 50,
+          ),
+          value: _value1,
+          onChanged: (value) {
+            setState(() {
+              _value1 = value!;
+            });
+          },
+          title: const Text('一点钟叫我起床'),
+          subtitle: const Text('太困了起不来'),
+          activeColor: Colors.green,
+          checkColor: Colors.yellow,
+          selected: _value1,
+        ),
+        CheckboxListTile(
+          secondary: const Icon(
+            Icons.settings,
+            size: 50,
+          ),
+          value: _value2,
+          onChanged: (value) {
+            setState(() {
+              _value2 = value!;
+            });
+          },
+          title: const Text('三点钟叫我起床'),
+          subtitle: const Text('这还差不多'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+### Radio
+
+Radio
+
+- value 复选框的值，与状态字段绑定
+- onChanged 复选框状态更改时调用
+
+### TextField
+
+
+
+
+
+### Calendar
+
+
+
+### Form
 
